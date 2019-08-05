@@ -1,10 +1,8 @@
 
 	* 简述vue的双向绑定原理
 
-实现mvvm的双向绑定，是采用数据劫持结合发布者-订阅者模式的方式，通过Object.defineProperty()来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。就必须要实现以下几点：1、实现一个数据监听器Observer，能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者2、实现一个指令解析器Compile，对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数3、实现一个Watcher，作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图4、mvvm入口函数，整合以上三者
-	* 
+实现mvvm的双向绑定，是采用数据劫持结合发布者-订阅者模式的方式，通过Object.defineProperty()来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。就必须要实现以下几点：1、实现一个数据监听器Observer，能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者2、实现一个指令解析器Compile，对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数3、实现一个Watcher，作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图4、mvvm入口函数，整合以上三者（官方：当你把一个普通的 JavaScript 对象传入 Vue 实例作为 data 选项，Vue 将遍历此对象所有的属性，并使用 Object.defineProperty 把这些属性全部转为 getter/setter。Object.defineProperty 是 ES5 中一个无法 shim 的特性，这也就是 Vue 不支持 IE8 以及更低版本浏览器的原因。这些 getter/setter 对用户来说是不可见的，但是在内部它们让 Vue 能够追踪依赖，在属性被访问和修改时通知变更）
 	* vue与react的区别
-
 react整体是函数式思想，把组件封装成成吨的组件，状态和逻辑通过参数传入，所以在react中，是单向数据流，推荐结合immutable来实现数据不可变，react在setStater之后会重新走渲染流程触发更新阶段如果shouldComponentUpdate返回的是true，就继续渲染，如果返回了false，就不会重新渲染，PureComponent就是重写了shouldComponentUpdate，然后在里面作了props和state的浅层对比而vue的思想是响应式的，也就是基于是数据可变的，通过对每一个属性建立Watcher来监听，当属性变化的时候，响应式的更新对应的虚拟dom。react的性能优化需要手动去做，而vue的性能优化是自动的，但是vue的响应式机制也有问题，就是当state特别多的时候，Watcher也会很多，会导致卡顿，所以大型应用（状态特别多的）一般用react，更加可控。应用场景：vue
 	* 什么是mvvm框架
 
@@ -45,11 +43,29 @@ Redux是将整个应用状态存储到一个地方，称为store,里面保存一
 computed计算属性是用来声明式的描述一个值依赖了其它的值。当你在模板里把数据绑定到一个计算属性上时，Vue 会在其依赖的任何值导致该计算属性改变时更新 DOM。这个功能非常强大，它可以让你的代码更加声明式、数据驱动并且易于维护。watch监听的是你定义的变量,当你定义的变量的值发生变化时，调用对应的方法。
 	* vue和react的生命周期各阶段都做了什么？
 
-vuebeforeCreate 实例创建前：这个阶段实例的data、methods是读不到的created 实例创建后：这个阶段已经完成了数据观测(data observer)，属性和方法的运算， watch/event 事件回调。mount挂载阶段还没开始，$el 属性目前不可见，数据并没有在DOM元素上进行渲染beforeMount：在挂载开始之前被调用：相关的 render 函数首次被调用。mounted：el选项的DOM节点 被新创建的 vm.$el 替换，并挂载到实例上去之后调用此生命周期函数。此时实例的数据在DOM节点上进行渲染beforeUpdate：数据更新时调用，但不进行DOM重新渲染，在数据更新时DOM没渲染前可以在这个生命函数里进行状态处理updated：这个状态下数据更新并且DOM重新渲染，当这个生命周期函数被调用时，组件 DOM 已经更新，所以你现在可以执行依赖于 DOM 的操作。当实例每次进行数据更新时updated都会执行beforeDestory：实例销毁之前调用。destroyed：Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。reactconstructor：用来做组件的初始化工作，在使用constructor的时候必须调用super方法，否则this的指向就会发生错误 constructor中用this.state来定义当前组件所需要的一些状态当前生命周期函数是访问不到props的,如果需要访问props则需要在super以及constructor函数中传递props属性componetWillmount：1、当前生命周期可以用来做数据渲染前做数据最后的修改2、将外部数据转换为内部数据，当前是生命周期在17.0中被废除掉了render：    1、render函数用来做数据的渲染(虚拟DOM的渲染),当this.setState/this.props发生改变的时候render函数就会执行            2、当render函数第一次渲染的时候会将渲染的结果在内存中保留一份，第二次render函数执行渲染的时候，会将缓存中的            虚拟DOM和现在的DOM进行对比，这个对比的过程叫做DIFF算法(新旧两个虚拟DOM之间的对比)。            3、render函数是一个多次执行的生命周期函数componentDidMount：（组将将安装）      1、当前生命周期是数据与模型相结合完毕，在这个生命周期中我们可以通过this.ref来获取到真实的DOM结构                         2、还可以在当前生命周期函数中进行前后端数据的交互(ajax使用)                         3、一般用来做方法的实例化(swiper better-scroll echarts)componentWillRecevieProps：this.props执行的时候当前生命周期函数就会执行，当前是生命周期函数中会有一次参数  这个参数就是新的props            我们可以在当前生命周期中获取外部数据转换为内部数据/做外部数据的修改            当前是生命周期在17.0中被废除掉了shouldComponentUpdate（应更新组件）： 1、当this.setState/this.props执行的时候当前生命周期就会执行            2、当前生命周期函数必须返回一个布尔值，true则代表执行下面的生命周期  false则不执行下面的生命周期            3、当前生命周期决定的是render函数是否执行，而不是数据是否修改            4、当前生命周期函数中有2个参数  一个为新的props一个为新的state，因此我们可以通过比较新值和旧值(this.state)来决定render            函数是否渲染。如果能减少render函数的渲染，那么性能也会提升componentWillUpdate：（组件将更新）  1、当前生命周期函数中有2个参数一个为新的props一个为新的state            2、当前生命周期是更新的数据和模板还未进行结合，因此我们可以在当前生命周期中做数据最后的修改componentDidUpdate： 1、当前生命周期是更新的数据和模板已经结合，我们可以在当前生命周期中获取到数据更新后的DOM结果            但是当前生命周期是多次珍惜的，因为逻辑需要进行判断在去执行componentWillUnmount：
-	*  说下你对this.setState的理解，以及第二个参数的作用。以及this.setState为什么是一个异步的？
+vuebeforeCreate 实例创建前：这个阶段实例的data、methods是读不到的created 实例创建后：这个阶段已经完成了数据观测(data observer)，属性和方法的运算， watch/event 事件回调。mount挂载阶段还没开始，$el 属性目前不可见，数据并没有在DOM元素上进行渲染beforeMount：在挂载开始之前被调用：相关的 render 函数首次被调用。mounted：el选项的DOM节点 被新创建的 vm.$el 替换，并挂载到实例上去之后调用此生命周期函数。此时实例的数据在DOM节点上进行渲染beforeUpdate：数据更新时调用，但不进行DOM重新渲染，在数据更新时DOM没渲染前可以在这个生命函数里进行状态处理updated：这个状态下数据更新并且DOM重新渲染，当这个生命周期函数被调用时，组件 DOM 已经更新，所以你现在可以执行依赖于 DOM 的操作。当实例每次进行数据更新时updated都会执行beforeDestory：实例销毁之前调用。destroyed：Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+reactconstructor：用来做组件的初始化工作，在使用constructor的时候必须调用super方法，否则this的指向就会发生错误 constructor中用this.state来定义当前组件所需要的一些状态当前生命周期函数是访问不到props的,如果需要访问props则需要在super以及constructor函数中传递props属性
+componetWillmount：
+1、当前生命周期可以用来做数据渲染前做数据最后的修改2、将外部数据转换为内部数据，当前是生命周期在17.0中被废除掉了render：  
+1、render函数用来做数据的渲染(虚拟DOM的渲染),当this.setState/this.props发生改变的时候render函数就会执行      
+2、当render函数第一次渲染的时候会将渲染的结果在内存中保留一份，第二次render函数执行渲染的时候，会将缓存中的虚拟DOM和现在的DOM进行对比，这个对比的过程叫做DIFF算法(新旧两个虚拟DOM之间的对比)。          
+3、render函数是一个多次执行的生命周期函数
+componentDidMount：（组将将安装）     
+    1、当前生命周期是数据与模型相结合完毕，在这个生命周期中我们可以通过this.ref来获取到真实的DOM结构                  
+    2、还可以在当前生命周期函数中进行前后端数据的交互(ajax使用) 
+    3、一般用来做方法的实例化(swiper better-scroll echarts)
+componentWillRecevieProps：this.props执行的时候当前生命周期函数就会执行，当前是生命周期函数中会有一次参数  这个参数就是新的props我们可以在当前生命周期中获取外部数据转换为内部数据/做外部数据的修改当前是生命周期在17.0中被废除掉了
+shouldComponentUpdate（应更新组件）： 
+   1、当this.setState/this.props执行的时候当前生命周期就会执行        
+  2、当前生命周期函数必须返回一个布尔值，true则代表执行下面的生命周期  false则不执行下面的生命周期          
+   3、当前生命周期决定的是render函数是否执行，而不是数据是否修改          
+  4、当前生命周期函数中有2个参数  一个为新的props一个为新的state，因此我们可以通过比较新值和旧值(this.state)来决定render函数是否渲染。如果能减少render函数的渲染，那么性能也会提升
+componentWillUpdate：（组件将更新）  1、当前生命周期函数中有2个参数一个为新的props一个为新的state            2、当前生命周期是更新的数据和模板还未进行结合，因此我们可以在当前生命周期中做数据最后的修改
+componentDidUpdate： 1、当前生命周期是更新的数据和模板已经结合，我们可以在当前生命周期中获取到数据更新后的DOM结果            但是当前生命周期是多次珍惜的，因为逻辑需要进行判断在去执行componentWillUnmount：
 
+	*  说下你对this.setState的理解，以及第二个参数的作用。以及this.setState为什么是一个异步的？
 我们不能直接对this.state直接进行修改，因为它是一个对象，我们对一个对象修this.setState:用来修改state中的数据，当this.setState执行完毕以后render函数会重新渲染         1、   this.setState({                username:1910            })        2、 this.setState(()=>({                username:1910            }))        3、this.setState中            第一个参数是一个对象/是一个函数(必须要返回一个对象),              第二个参数是一个回调，这个回调是一个异步的回调。作用：1、验证数据是否修改成功  2、获取到数据更新后最新的DOM结构首先，我想我们都同意推迟并批量处理重渲染是有益而且对性能优化很重要的，
-	* 
+	
 	* redux数据传递的流程，如果让你封装一个redux你如何封装
 
         1、当组件需要修改数据的时候，必须通过store.dispatch发送一个action给store.        2、store会将这个action传递都给reducer，reducer会根据action中type类型来做数据的修改        3、reducer这个纯函数中state是只允许读不允许做修改。当数据修改完毕后必须返回一个新的state        4、当数据修改完毕后store会通过store.subscribe来通知所有组件数据已更新。三大特性：   1、单一的数据源            2、state是只读的不允许修改            3、必须返回一个纯函数如果让你封装一个redux你如何封装：+
